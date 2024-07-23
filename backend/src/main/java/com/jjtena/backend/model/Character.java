@@ -1,7 +1,10 @@
 package com.jjtena.backend.model;
 
+import lombok.Data;
+
 import java.util.List;
 
+@Data
 public class Character {
     private String name;
     private String height;
