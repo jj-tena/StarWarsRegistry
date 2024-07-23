@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Character {
+public class CharacterModel {
     private String name;
     private String height;
     private String mass;
