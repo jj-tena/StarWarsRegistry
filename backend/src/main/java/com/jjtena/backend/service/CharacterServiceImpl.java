@@ -2,21 +2,16 @@ package com.jjtena.backend.service;
 
 import com.jjtena.backend.dto.CharacterDTO;
 import com.jjtena.backend.dto.FilmDTO;
-import com.jjtena.backend.model.CharacterModel;
-import com.jjtena.backend.model.FilmModel;
-import com.jjtena.backend.model.PlanetModel;
-import com.jjtena.backend.model.VehicleModel;
+import com.jjtena.backend.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,13 +27,17 @@ public class CharacterServiceImpl implements CharacterService {
     @Override
     public Mono<CharacterDTO> getCharacter(String name) {
         return webClient.get()
-                //.uri("/api/people/?search={name}", name)
-                .uri("/people/1")
+                .uri("/people/?search={name}", name)
                 .retrieve()
-                .bodyToMono(CharacterModel.class)
-                .flatMap(this::buildCharacterDto);
+                .bodyToMono(CharacterResponse.class)
+                .flatMap(response -> {
+                    if (response.getResults().isEmpty()) {
+                        return Mono.error(new RuntimeException("Character not found"));
+                    }
+                    CharacterModel character = response.getResults().get(0);
+                    return buildCharacterDto(character);
+                });
     }
-
 
     private Mono<CharacterDTO> buildCharacterDto(CharacterModel character) {
         CharacterDTO characterInfo = new CharacterDTO();
